@@ -38,7 +38,7 @@ const columns: readonly Column[] = [
   },
 ];
 
-export default function StickyHeadTable() {
+export default function EventsTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 

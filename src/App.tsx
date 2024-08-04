@@ -1,5 +1,5 @@
 import EventsTable from "./components/EventsTable";
-import FormUpdateTickets from "./components/FormUpdateTickets";
+import FormUpdateSettings from "./components/FormUpdateSettings";
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
       <EventsTable />
 
       <h1>Update Settings</h1>
-      <FormUpdateTickets />
+      <FormUpdateSettings />
     </div>
   );
 }
