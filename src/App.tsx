@@ -1,3 +1,5 @@
+import EventsTable from "./components/Table";
+
 function App() {
   return (
     <div
@@ -11,11 +13,8 @@ function App() {
       }}
     >
       <h1>See Tickets </h1>
-      <div className="card">
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
+      
+      <EventsTable />
     </div>
   );
 }
