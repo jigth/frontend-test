@@ -15,15 +15,38 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { MobileSetting } from "../models/settings";
 
-function FormUpdateTickets() {
+function FormUpdateSettings() {
   const [deliveryMethods, setDeliveryMethods] = useState<string[]>(["PRINT_NOW", "PRINT_AT_HOME"]);
+  const [mobileSetting, setMobileSetting] = useState<MobileSetting>({ clientId: 1 } as MobileSetting);
+  const [clientId, setClientId] = useState<number>(1);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleFormSubmit = (values: MobileSetting) => {
     console.log("Submit");
   };
+
+  const validationSchema = Yup.object({
+    clientId: Yup.number().oneOf([1], "Client ID should be 1"),
+  });
+
+  const { handleChange, errors, values, handleSubmit, handleBlur } = useFormik<MobileSetting>({
+    initialValues: mobileSetting as MobileSetting,
+    onSubmit: handleFormSubmit,
+    validationSchema,
+  });
+
+  console.log("formik errors?", errors);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/mobile-settings")
+      .then((res) => (!res.ok ? Promise.reject(new Error(`Could not make request. ${res.statusText}`)) : res.json()))
+      .then((response) => setMobileSetting(response.data))
+      .catch((err) => console.log(err));
+  }, [clientId]);
 
   const handleChangeDeliveryMethods = (event: SelectChangeEvent<typeof deliveryMethods>) => {
     const {
@@ -38,11 +61,17 @@ function FormUpdateTickets() {
         <Stack spacing={2}>
           <FormControl>
             <FormLabel>Client ID</FormLabel>
-            <Select defaultValue={1}>
+            <Select
+              id="clientId"
+              name="clientId"
+              onChange={handleChange}
+              value={values.clientId || ""}
+            >
               <MenuItem value={1}>Client 1</MenuItem>
               <MenuItem value={2}>Client 2</MenuItem>
             </Select>
             <FormHelperText>Select a client ID to update their settings</FormHelperText>
+            <small style={{ color: 'red' }}>{ errors.clientId && errors.clientId}</small>
           </FormControl>
 
           <FormControl>
@@ -104,7 +133,10 @@ function FormUpdateTickets() {
             <FormLabel>Ticket Display</FormLabel>
             <Grid>
               <FormGroup>
-                <FormControlLabel control={<Checkbox value="leftInAllotment" defaultChecked />} label="Left In Allotment" />
+                <FormControlLabel
+                  control={<Checkbox value="leftInAllotment" defaultChecked />}
+                  label="Left In Allotment"
+                />
                 <FormControlLabel control={<Checkbox value="soldOut" defaultChecked />} label="Sold Out" />
               </FormGroup>
             </Grid>
@@ -130,4 +162,4 @@ function FormUpdateTickets() {
   );
 }
 
-export default FormUpdateTickets;
+export default FormUpdateSettings;
