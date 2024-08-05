@@ -13,7 +13,7 @@ export interface MobileSetting {
   customerInfo: CustomerInfo;
 }
 
-interface DeliveryMethod {
+export interface DeliveryMethod {
   name: string;
   enum: string;
   order: number;
