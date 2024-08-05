@@ -21,37 +21,37 @@ export interface DeliveryMethod {
   selected: boolean;
 }
 
-interface FulfillmentFormat {
+export interface FulfillmentFormat {
   rfid: boolean;
   print: boolean;
 }
 
-interface Printer {
+export interface Printer {
   id?: string;
 }
 
-interface PrintingFormat {
+export interface PrintingFormat {
   formatA: boolean;
   formatB: boolean;
 }
 
-interface Scanning {
+export interface Scanning {
   scanManually: boolean;
   scanWhenComplete: boolean;
 }
 
-interface PaymentMethods {
+export interface PaymentMethods {
   cash: boolean;
   creditCard: boolean;
   comp: boolean;
 }
 
-interface TicketDisplay {
+export interface TicketDisplay {
   leftInAllotment: boolean;
   soldOut: boolean;
 }
 
-interface CustomerInfo {
+export interface CustomerInfo {
   active: boolean;
   basicInfo: boolean;
   addressInfo: boolean;

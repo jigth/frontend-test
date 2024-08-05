@@ -15,7 +15,16 @@ import {
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { DeliveryMethod, MobileSetting } from "../models/settings";
+import {
+  CustomerInfo,
+  DeliveryMethod,
+  FulfillmentFormat,
+  MobileSetting,
+  PaymentMethods,
+  PrintingFormat,
+  Scanning,
+  TicketDisplay,
+} from "../models/settings";
 
 function FormUpdateSettings() {
   const getMobileSettingDefaultValues = (): MobileSetting => {
@@ -58,7 +67,7 @@ function FormUpdateSettings() {
   const [clientsIdsList, setClientsIdsList] = useState<number[]>([1]);
 
   const handleFormSubmit = (formValues: FormikMobileSetting) => {
-    console.log("Submit", {formValues});
+    console.log("Submit", { formValues });
   };
 
   const validationSchema = Yup.object({
@@ -82,7 +91,6 @@ function FormUpdateSettings() {
   });
 
   useEffect(() => {
-    console.log({ clientIdIs: values.clientId });
     fetch(`http://localhost:3000/mobile-settings/${values.clientId}`)
       .then((res) => (!res.ok ? Promise.reject(new Error(`Could not make request. ${res.statusText}`)) : res.json()))
       .then((response) => {
@@ -143,23 +151,18 @@ function FormUpdateSettings() {
             <FormLabel>Fulfillment Format</FormLabel>
             <Grid>
               <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      id="fulfillmentFormat"
-                      name="fulfillmentFormat.rfid"
+              {(Object.keys(values.fulfillmentFormat) as Array<keyof FulfillmentFormat>).map(
+                  (key: keyof FulfillmentFormat, i: number) => (
+                    <FormControlLabel
+                      key={i}
+                      name={`fulfillmentFormat.${key}`}
+                      value={values.fulfillmentFormat[key]}
                       onChange={handleChange}
-                      checked={values.fulfillmentFormat.rfid}
+                      control={<Checkbox checked={values.fulfillmentFormat[key]} />}
+                      label={`${key}`}
                     />
-                  }
-                  label="RF ID"
-                />
-                <FormControlLabel
-                  control={<Checkbox checked={values.fulfillmentFormat.print} />}
-                  label="Print"
-                  name="fulfillmentFormat.print"
-                  onChange={handleChange}
-                />
+                  ),
+                )}
               </FormGroup>
             </Grid>
           </FormControl>
@@ -171,46 +174,35 @@ function FormUpdateSettings() {
             <FormLabel>Printing Format</FormLabel>
             <Grid>
               <FormGroup>
-                <FormControlLabel
-                  name="printingFormat.formatA"
-                  value={values.printingFormat.formatA}
-                  onChange={handleChange}
-                  control={<Checkbox checked={values.printingFormat.formatA} />}
-                  label="Format A"
-                />
-                <FormControlLabel
-                  name="printingFormat.formatB"
-                  value={values.printingFormat.formatB}
-                  onChange={handleChange}
-                  control={<Checkbox checked={values.printingFormat.formatB} />}
-                  label="Format B"
-                />
+                {(Object.keys(values.printingFormat) as Array<keyof PrintingFormat>).map(
+                  (key: keyof PrintingFormat, i: number) => (
+                    <FormControlLabel
+                      key={i}
+                      name={`printingFormat.${key}`}
+                      value={values.printingFormat[key]}
+                      onChange={handleChange}
+                      control={<Checkbox checked={values.printingFormat[key]} />}
+                      label={`${key}`}
+                    />
+                  ),
+                )}
               </FormGroup>
             </Grid>
           </FormControl>
           <FormControl>
             <FormLabel>Scanning</FormLabel>
             <Grid>
-              {/* <FormGroup>
-                <FormControlLabel value="sample1" control={<Checkbox />} label="Scan Manually" />
-                <FormControlLabel value="sample" control={<Checkbox />} label="Scan When Complete" />
-              </FormGroup> */}
-
               <FormGroup>
-                <FormControlLabel
-                  name="scanning.scanManually"
-                  value={values.scanning.scanManually}
-                  onChange={handleChange}
-                  control={<Checkbox checked={values.scanning.scanManually} />}
-                  label="Scan Manually"
-                />
-                <FormControlLabel
-                  name="scanning.scanWhenComplete"
-                  value={values.scanning.scanWhenComplete}
-                  onChange={handleChange}
-                  control={<Checkbox checked={values.scanning.scanWhenComplete} />}
-                  label="Scan When Complete"
-                />
+                {(Object.keys(values.scanning) as Array<keyof Scanning>).map((key: keyof Scanning, i: number) => (
+                  <FormControlLabel
+                    key={i}
+                    name={`scanning.${key}`}
+                    value={values.scanning[key]}
+                    onChange={handleChange}
+                    control={<Checkbox checked={values.scanning[key]} />}
+                    label={`${key}`}
+                  />
+                ))}
               </FormGroup>
             </Grid>
           </FormControl>
@@ -218,27 +210,18 @@ function FormUpdateSettings() {
             <FormLabel>Payment Methods</FormLabel>
             <Grid>
               <FormGroup>
-                <FormControlLabel
-                  name="paymentMethods.cash"
-                  onChange={handleChange}
-                  value={values.paymentMethods.cash}
-                  control={<Checkbox checked={values.paymentMethods.cash} />}
-                  label="Cash"
-                />
-                <FormControlLabel
-                  name="paymentMethods.creditCard"
-                  onChange={handleChange}
-                  value={values.paymentMethods.creditCard}
-                  control={<Checkbox checked={values.paymentMethods.creditCard} />}
-                  label="Credit Card"
-                />
-                <FormControlLabel
-                  name="paymentMethods.comp"
-                  onChange={handleChange}
-                  value={values.paymentMethods.comp}
-                  control={<Checkbox checked={values.paymentMethods.comp} />}
-                  label="Comp"
-                />
+                {(Object.keys(values.paymentMethods) as Array<keyof PaymentMethods>).map(
+                  (key: keyof PaymentMethods, i: number) => (
+                    <FormControlLabel
+                      key={i}
+                      name={`paymentMethods.${key}`}
+                      value={values.paymentMethods[key]}
+                      onChange={handleChange}
+                      control={<Checkbox checked={values.paymentMethods[key]} />}
+                      label={`${key}`}
+                    />
+                  ),
+                )}
               </FormGroup>
             </Grid>
           </FormControl>
@@ -246,20 +229,18 @@ function FormUpdateSettings() {
             <FormLabel>Ticket Display</FormLabel>
             <Grid>
               <FormGroup>
-                <FormControlLabel
-                  name="ticketDisplay.leftInAllotment"
-                  onChange={handleChange}
-                  value={values.ticketDisplay.leftInAllotment}
-                  control={<Checkbox checked={values.ticketDisplay.leftInAllotment} />}
-                  label="Left In Allotment"
-                />
-                <FormControlLabel
-                  name="ticketDisplay.soldOut"
-                  onChange={handleChange}
-                  value={values.ticketDisplay.soldOut}
-                  control={<Checkbox checked={values.ticketDisplay.soldOut} />}
-                  label="Sold Out"
-                />
+                {(Object.keys(values.ticketDisplay) as Array<keyof TicketDisplay>).map(
+                  (key: keyof TicketDisplay, i: number) => (
+                    <FormControlLabel
+                      key={i}
+                      name={`ticketDisplay.${key}`}
+                      value={values.ticketDisplay[key]}
+                      onChange={handleChange}
+                      control={<Checkbox checked={values.ticketDisplay[key]} />}
+                      label={`${key}`}
+                    />
+                  ),
+                )}
               </FormGroup>
             </Grid>
           </FormControl>
@@ -267,27 +248,18 @@ function FormUpdateSettings() {
             <FormLabel>Customer Info</FormLabel>
             <Grid>
               <FormGroup>
-                <FormControlLabel
-                  name="customerInfo.active"
-                  value={values.customerInfo.active}
-                  onChange={handleChange}
-                  control={<Checkbox checked={values.customerInfo.active} />}
-                  label="Active"
-                />
-                <FormControlLabel
-                  name="customerInfo.basicInfo"
-                  value={values.customerInfo.basicInfo}
-                  onChange={handleChange}
-                  control={<Checkbox checked={values.customerInfo.basicInfo} />}
-                  label="Basic Info"
-                />
-                <FormControlLabel
-                  name="customerInfo.addressInfo"
-                  value={values.customerInfo.addressInfo}
-                  onChange={handleChange}
-                  control={<Checkbox checked={values.customerInfo.addressInfo} />}
-                  label="Address Info"
-                />
+                {(Object.keys(values.customerInfo) as Array<keyof CustomerInfo>).map(
+                  (key: keyof CustomerInfo, i: number) => (
+                    <FormControlLabel
+                      key={i}
+                      name={`customerInfo.${key}`}
+                      value={values.customerInfo[key]}
+                      onChange={handleChange}
+                      control={<Checkbox checked={values.customerInfo[key]} />}
+                      label={`${key}`}
+                    />
+                  ),
+                )}
               </FormGroup>
             </Grid>
           </FormControl>
