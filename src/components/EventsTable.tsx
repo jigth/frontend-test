@@ -10,6 +10,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { Event } from "../models/event";
 import { useAppDispatch, useAppSelector } from "../hooks/store";
 import { replaceEvents } from "../store/events/slice";
+import { getAPIEndpoint } from "../constants/apis";
 
 interface Column {
   id: "id" | "name" | "description" | "location" | "date" | "availableTickets";
@@ -46,7 +47,9 @@ export default function EventsTable() {
   const events = useAppSelector((state) => state.events);
 
   useEffect(() => {
-    fetch("http://localhost:3000/events?limit=100")
+    const eventsURL = getAPIEndpoint('EVENTS');
+    console.log({eventsURL})
+    fetch(`${eventsURL}?limit=100`)
       .then((res) => {
         if (!res.ok) throw new Error(`Error, res not OK. ${res.status} status code. ${res.statusText}`);
         return res.json();

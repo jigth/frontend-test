@@ -25,6 +25,7 @@ import {
   Scanning,
   TicketDisplay,
 } from "../models/settings";
+import { getAPIEndpoint } from "../constants/apis";
 
 function FormUpdateSettings() {
   const getMobileSettingDefaultValues = (): MobileSetting => {
@@ -91,7 +92,8 @@ function FormUpdateSettings() {
   });
 
   useEffect(() => {
-    fetch(`http://localhost:3000/mobile-settings/${values.clientId}`)
+    const mobileSettingsURL = getAPIEndpoint("MOBILE_SETTINGS");
+    fetch(`${mobileSettingsURL}/${values.clientId}`)
       .then((res) => (!res.ok ? Promise.reject(new Error(`Could not make request. ${res.statusText}`)) : res.json()))
       .then((response) => {
         const newMobileSetting: MobileSetting = response.data;
@@ -102,7 +104,8 @@ function FormUpdateSettings() {
   }, [values.clientId]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/mobile-settings/clients-ids")
+    const mobileSettingsURL = getAPIEndpoint("MOBILE_SETTINGS");
+    fetch(`${mobileSettingsURL}/clients-ids`)
       .then((res) => (!res.ok ? Promise.reject(new Error(`Could not make request. ${res.statusText}`)) : res.json()))
       .then((response) => {
         setClientsIdsList(response.data);
@@ -151,7 +154,7 @@ function FormUpdateSettings() {
             <FormLabel>Fulfillment Format</FormLabel>
             <Grid>
               <FormGroup>
-              {(Object.keys(values.fulfillmentFormat) as Array<keyof FulfillmentFormat>).map(
+                {(Object.keys(values.fulfillmentFormat) as Array<keyof FulfillmentFormat>).map(
                   (key: keyof FulfillmentFormat, i: number) => (
                     <FormControlLabel
                       key={i}
