@@ -67,38 +67,52 @@ function FormUpdateSettings() {
   const [mobileSetting, setMobileSetting] = useState<MobileSetting>(getMobileSettingDefaultValues());
   const [clientsIdsList, setClientsIdsList] = useState<number[]>([1]);
 
-  const handleFormSubmit = (formValues: FormikMobileSetting) => {
-    console.log("Submit", { formValues });
+  const handleFormSubmit = async (formValues: MobileSetting) => {
+    const mobileSettingsURL = getAPIEndpoint("MOBILE_SETTINGS");
+    try {
+      const res = await fetch(mobileSettingsURL, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(formValues),
+      });
+
+      if (!res.ok) throw new Error(`${res.status} - ${res.statusText}`);
+
+      console.log("Submit succesful", await res.json());
+
+      alert("Setting updated succesfully");
+    } catch (err: any) {
+      console.log(`Could not send form submit. ${err.message}`);
+      alert("Error updating setting");
+    }
   };
 
   const validationSchema = Yup.object({
-    clientId: Yup.number().oneOf([1], "Client ID should be 1"),
+    clientId: Yup.number(),
+    printer: Yup.object({
+      id: Yup.string().nullable(),
+    }),
   });
 
-  type FormikMobileSetting = Omit<MobileSetting, "deliveryMethods"> & { deliveryMethods: string[] };
-
-  /** Transforms mobile setting state to a format more friendly with the form */
-  const convertMobileStateToFormik = (mobileSetting: MobileSetting): FormikMobileSetting => {
-    return {
-      ...mobileSetting,
-      deliveryMethods: mobileSetting.deliveryMethods.map((dm: DeliveryMethod) => dm.enum),
-    };
-  };
-
-  const { errors, values, setValues, handleSubmit, handleChange } = useFormik<FormikMobileSetting>({
-    initialValues: convertMobileStateToFormik(mobileSetting),
+  const { errors, values, setValues, handleSubmit, handleChange } = useFormik<MobileSetting>({
+    initialValues: mobileSetting,
     onSubmit: handleFormSubmit,
     validationSchema,
   });
+
+  console.log({errors})
 
   useEffect(() => {
     const mobileSettingsURL = getAPIEndpoint("MOBILE_SETTINGS");
     fetch(`${mobileSettingsURL}/${values.clientId}`)
       .then((res) => (!res.ok ? Promise.reject(new Error(`Could not make request. ${res.statusText}`)) : res.json()))
       .then((response) => {
-        const newMobileSetting: MobileSetting = response.data;
-        setMobileSetting(newMobileSetting);
-        setValues(convertMobileStateToFormik(newMobileSetting));
+        const { _id, ...newMobileSetting } = response.data;
+        setMobileSetting(newMobileSetting as MobileSetting);
+        setValues(newMobileSetting as MobileSetting);
       })
       .catch((err) => console.log(err));
   }, [values.clientId]);
@@ -112,6 +126,16 @@ function FormUpdateSettings() {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  /** Custom management for select so Formik doesn't overwrites data but manipulates the "selected' property" */
+  const handleSelectChange = (e: any) => {
+    const selectedDMs = e.target.value as string[];
+    const updatedDeliveryMethods = values.deliveryMethods.map((dm) => ({
+      ...dm,
+      selected: selectedDMs.includes(dm.enum),
+    }));
+    setValues({ ...values, deliveryMethods: updatedDeliveryMethods });
+  };
 
   return (
     <div>
@@ -130,7 +154,6 @@ function FormUpdateSettings() {
                 ))}
             </Select>
             <FormHelperText>Select a client ID to update their settings</FormHelperText>
-            <small style={{ color: "red" }}>{errors.clientId && errors.clientId}</small>
           </FormControl>
           <FormControl>
             <FormLabel>Delivery Methods</FormLabel>
@@ -138,8 +161,18 @@ function FormUpdateSettings() {
               id="deliveryMethods"
               name="deliveryMethods"
               multiple
-              value={values.deliveryMethods ?? []}
-              onChange={handleChange}
+              // value={(values.deliveryMethods ?? []) as any /* TODO: Fix this type warning */}
+
+              value={values.deliveryMethods.filter(dm => dm.selected).map(dm => dm.enum)}
+              renderValue={
+                // handleSelectRender
+                () =>
+                (values.deliveryMethods ?? [])
+                  .filter((dm) => dm.selected)
+                  .map((dm) => dm.enum)
+                  .join(", ")
+              }
+              onChange={handleSelectChange}
             >
               {mobileSetting &&
                 mobileSetting.deliveryMethods &&
@@ -171,7 +204,16 @@ function FormUpdateSettings() {
           </FormControl>
           <FormControl>
             <FormLabel>Printer</FormLabel>
-            <TextField placeholder="Printer id" helperText="You can leave it blank or modify it here"></TextField>
+            <TextField
+              name="printer.id"
+              value={values.printer.id ?? ""}
+              onChange={(e) => {
+                console.log({ eValue: e.target.value });
+                handleChange(e);
+              }}
+              placeholder="Printer id"
+              helperText="You can leave it blank or modify it here"
+            ></TextField>
           </FormControl>
           <FormControl>
             <FormLabel>Printing Format</FormLabel>

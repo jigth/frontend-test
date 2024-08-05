@@ -47,8 +47,7 @@ export default function EventsTable() {
   const events = useAppSelector((state) => state.events);
 
   useEffect(() => {
-    const eventsURL = getAPIEndpoint('EVENTS');
-    console.log({eventsURL})
+    const eventsURL = getAPIEndpoint("EVENTS");
     fetch(`${eventsURL}?limit=100`)
       .then((res) => {
         if (!res.ok) throw new Error(`Error, res not OK. ${res.status} status code. ${res.statusText}`);
