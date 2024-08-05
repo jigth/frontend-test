@@ -26,45 +26,13 @@ import {
   TicketDisplay,
 } from "../models/settings";
 import { getAPIEndpoint } from "../constants/apis";
+import { useAppDispatch, useAppSelector } from "../hooks/store";
+import { replaceMobileSetting } from "../store/mobile-settings/slice";
 
 function FormUpdateSettings() {
-  const getMobileSettingDefaultValues = (): MobileSetting => {
-    return {
-      clientId: 1,
-      deliveryMethods: [],
-      fulfillmentFormat: {
-        rfid: false,
-        print: false,
-      },
-      printer: {
-        id: "",
-      },
-      printingFormat: {
-        formatA: false,
-        formatB: false,
-      },
-      scanning: {
-        scanManually: false,
-        scanWhenComplete: false,
-      },
-      paymentMethods: {
-        cash: false,
-        creditCard: false,
-        comp: false,
-      },
-      ticketDisplay: {
-        leftInAllotment: false,
-        soldOut: false,
-      },
-      customerInfo: {
-        active: false,
-        basicInfo: false,
-        addressInfo: false,
-      },
-    };
-  };
+  const dispatch = useAppDispatch();
+  const mobileSetting = useAppSelector((state) => state.mobileSettings);
 
-  const [mobileSetting, setMobileSetting] = useState<MobileSetting>(getMobileSettingDefaultValues());
   const [clientsIdsList, setClientsIdsList] = useState<number[]>([1]);
 
   const handleFormSubmit = async (formValues: MobileSetting) => {
@@ -103,7 +71,7 @@ function FormUpdateSettings() {
     validationSchema,
   });
 
-  console.log({errors})
+  console.log({ errors });
 
   useEffect(() => {
     const mobileSettingsURL = getAPIEndpoint("MOBILE_SETTINGS");
@@ -111,7 +79,7 @@ function FormUpdateSettings() {
       .then((res) => (!res.ok ? Promise.reject(new Error(`Could not make request. ${res.statusText}`)) : res.json()))
       .then((response) => {
         const { _id, ...newMobileSetting } = response.data;
-        setMobileSetting(newMobileSetting as MobileSetting);
+        dispatch(replaceMobileSetting(newMobileSetting));
         setValues(newMobileSetting as MobileSetting);
       })
       .catch((err) => console.log(err));
@@ -137,6 +105,12 @@ function FormUpdateSettings() {
     setValues({ ...values, deliveryMethods: updatedDeliveryMethods });
   };
 
+  const renderValue = () =>
+    (values.deliveryMethods ?? [])
+      .filter((dm) => dm.selected)
+      .map((dm) => dm.enum)
+      .join(", ");
+
   return (
     <div>
       clientId - {clientsIdsList && values.clientId}
@@ -161,17 +135,8 @@ function FormUpdateSettings() {
               id="deliveryMethods"
               name="deliveryMethods"
               multiple
-              // value={(values.deliveryMethods ?? []) as any /* TODO: Fix this type warning */}
-
-              value={values.deliveryMethods.filter(dm => dm.selected).map(dm => dm.enum)}
-              renderValue={
-                // handleSelectRender
-                () =>
-                (values.deliveryMethods ?? [])
-                  .filter((dm) => dm.selected)
-                  .map((dm) => dm.enum)
-                  .join(", ")
-              }
+              value={values.deliveryMethods.filter((dm) => dm.selected).map((dm) => dm.enum)}
+              renderValue={renderValue}
               onChange={handleSelectChange}
             >
               {mobileSetting &&
