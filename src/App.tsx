@@ -1,5 +1,7 @@
 import EventsTable from "./components/EventsTable";
 import FormUpdateSettings from "./components/FormUpdateSettings";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -13,10 +15,11 @@ function App() {
         flexDirection: "column",
       }}
     >
+      <ToastContainer />
       <h1>See Tickets </h1>
       <EventsTable />
 
-      <h1>Update Settings</h1>
+      <h1 style={{ textAlign: "center" }}>Update Settings</h1>
       <FormUpdateSettings />
     </div>
   );

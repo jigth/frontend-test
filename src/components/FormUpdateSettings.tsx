@@ -28,6 +28,7 @@ import {
 import { getAPIEndpoint } from "../constants/apis";
 import { useAppDispatch, useAppSelector } from "../hooks/store";
 import { replaceMobileSetting } from "../store/mobile-settings/slice";
+import { toast } from "react-toastify";
 
 function FormUpdateSettings() {
   const dispatch = useAppDispatch();
@@ -51,10 +52,10 @@ function FormUpdateSettings() {
 
       console.log("Submit succesful", await res.json());
 
-      alert("Setting updated succesfully");
+      toast.success('Setting updated sucesfully!')
     } catch (err: any) {
       console.log(`Could not send form submit. ${err.message}`);
-      alert("Error updating setting");
+      toast.error('Error updating setting')
     }
   };
 
@@ -113,10 +114,8 @@ function FormUpdateSettings() {
 
   return (
     <div>
-      clientId - {clientsIdsList && values.clientId}
       <form onSubmit={handleSubmit}>
         <Stack spacing={2}>
-          <div style={{ width: "300px" }}>values {JSON.stringify(values)}</div>
           <FormControl>
             <FormLabel>Client ID</FormLabel>
             <Select id="clientId" name="clientId" onChange={handleChange} value={values.clientId}>
